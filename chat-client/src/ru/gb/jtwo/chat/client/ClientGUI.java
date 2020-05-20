@@ -3,15 +3,11 @@ package ru.gb.jtwo.chat.client;
 import ru.gb.jtwo.chat.common.Library;
 import ru.gb.jtwo.network.SocketThread;
 import ru.gb.jtwo.network.SocketThreadListener;
-
 import javax.swing.*;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.net.Socket;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -101,6 +97,7 @@ public class ClientGUI extends JFrame implements ActionListener, Thread.Uncaught
             sendMessage();
         } else if (src == btnLogin) {
             connect();
+            readMsgInLogFile();
         } else if (src == btnDisconnect) {
             socketThread.close();
         } else {
@@ -125,7 +122,18 @@ public class ClientGUI extends JFrame implements ActionListener, Thread.Uncaught
         tfMessage.requestFocusInWindow();
         socketThread.sendMessage(Library.getTypeBcastClient(msg));
         //putLog(String.format("%s: %s", username, msg));
-        //wrtMsgToLogFile(msg, username);
+        wrtMsgToLogFile(msg, username);
+    }
+
+    private void readMsgInLogFile() {
+        try (BufferedReader reader = new BufferedReader(new FileReader("log.txt"))) {
+            String msg;
+            while ((msg = reader.readLine()) != null) {
+                log.append(msg + "\n");
+            }
+        } catch (IOException e) {
+          e.printStackTrace();
+          }
     }
 
     private void wrtMsgToLogFile(String msg, String username) {
